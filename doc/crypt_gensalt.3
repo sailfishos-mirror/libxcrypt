@@ -135,6 +135,12 @@ which will be overwritten by subsequent calls to
 It is not safe to call
 .Nm crypt_gensalt
 from multiple threads simultaneously.
+It's also not recommended to use the pointer
+returned as an argument for another call to
+.Nm crypt_gensalt ,
+as some implementations, including earlier
+releases of libxcrypt, may overwrite the underlying
+static output buffer before computing the setting.
 However, it
 .Em is
 safe to pass the string returned by
@@ -153,6 +159,14 @@ bytes of storage available.
 .Fa output_size
 should be greater than or equal to
 .Dv CRYPT_GENSALT_OUTPUT_SIZE .
+It's also not recommended to use the pointer
+returned as an argument for another call to
+.Nm crypt_gensalt_rn
+using the same
+.Fa output
+buffer for subsequent calls, as some implementations,
+including earlier releases of libxcrypt, may overwrite
+the supplied buffer before computing the setting.
 .Pp
 .Nm crypt_gensalt_ra
 allocates memory for its result using

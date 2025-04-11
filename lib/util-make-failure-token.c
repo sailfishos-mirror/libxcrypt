@@ -24,12 +24,14 @@ make_failure_token (const char *setting, char *output, int size)
 {
   if (size >= 3)
     {
-      output[0] = '*';
-      output[1] = '0';
-      output[2] = '\0';
+      char token[3] = "*0";
 
       if (setting && setting[0] == '*' && setting[1] == '0')
-        output[1] = '1';
+        token[1] = '1';
+
+      output[0] = token[0];
+      output[1] = token[1];
+      output[2] = '\0';
     }
 
   /* If there's not enough space for the full failure token, do the

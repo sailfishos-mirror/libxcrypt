@@ -221,6 +221,12 @@ which will be overwritten by subsequent calls to
 It is not safe to call
 .Nm crypt
 from multiple threads simultaneously.
+It's also not recommended to use the pointer
+returned as an argument for another call to
+.Nm crypt ,
+as some implementations, including earlier
+releases of libxcrypt, may overwrite the underlying
+static output buffer before computing the hash.
 .Pp
 .Nm crypt_r ,
 .Nm crypt_rn ,
@@ -235,6 +241,35 @@ It is safe to call them from multiple threads simultaneously,
 as long as a separate
 .Fa data
 object is used for each thread.
+It's also not recommended to use the pointer
+returned as an argument for another call to
+.Nm crypt_r ,
+.Nm crypt_rn ,
+and
+.Nm crypt_ra
+using the same
+.Fa data
+object for subsequent calls, as some implementations,
+including earlier releases of libxcrypt, may overwrite the
+.Fa output
+field of the passed
+.Fa data
+argument before computing the hash.
+Calling
+.Nm crypt_ra
+with the
+.Fa phrase
+and/or
+.Fa setting
+parameters located within a passed
+.Fa data
+object which is smaller than the size of
+.Vt "struct crypt_data"
+is not recommended, as some implementations, including
+earlier releases of libxcrypt, may not preserve the
+passed literals, if the
+.Fa data
+object needs to be altered.
 .Pp
 Upon error,
 .Nm crypt_r ,

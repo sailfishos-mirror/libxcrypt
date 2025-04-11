@@ -1,7 +1,7 @@
 /* High-level libcrypt interfaces.
 
    Copyright 2007-2017 Thorsten Kukuk and Zack Weinberg
-   Copyright 2018-2021 Björn Esser
+   Copyright 2018-2025 Björn Esser
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public License
@@ -31,7 +31,10 @@
    struct, since the first field must always have offset 0.  */
 struct crypt_internal
 {
+  /* Alignment critical data members.  */
   char alignas (alignof (max_align_t)) alg_specific[ALG_SPECIFIC_SIZE];
+  /* Not alignment critical data members.  */
+  char output[CRYPT_OUTPUT_SIZE];
 };
 
 static_assert(sizeof (struct crypt_internal) + alignof (struct crypt_internal)
@@ -146,10 +149,14 @@ check_badsalt_chars (const char *setting)
 static void
 do_crypt (const char *phrase, const char *setting, struct crypt_data *data)
 {
+  struct crypt_internal *cint = get_internal (data);
+  memset (cint->output, 0, sizeof cint->output);
+  make_failure_token (setting, cint->output, sizeof cint->output);
+
   if (!phrase || !setting)
     {
       errno = EINVAL;
-      return;
+      goto out;
     }
   /* Do these strlen() calls before reading prefixes of either
      'phrase' or 'setting', so we get a predictable crash if they are
@@ -159,12 +166,12 @@ do_crypt (const char *phrase, const char *setting, struct crypt_data *data)
   if (phr_size >= CRYPT_MAX_PASSPHRASE_SIZE)
     {
       errno = ERANGE;
-      return;
+      goto out;
     }
   if (check_badsalt_chars (setting))
     {
       errno = EINVAL;
-      return;
+      goto out;
     }
 
   const struct hashfn *h = get_hashfn (setting);
@@ -172,14 +179,15 @@ do_crypt (const char *phrase, const char *setting, struct crypt_data *data)
     {
       /* Unrecognized hash algorithm */
       errno = EINVAL;
-      return;
+      goto out;
     }
 
-  struct crypt_internal *cint = get_internal (data);
   h->crypt (phrase, phr_size, setting, set_size,
-            (unsigned char *)data->output, sizeof data->output,
+            (unsigned char *) cint->output, sizeof cint->output,
             cint->alg_specific, sizeof cint->alg_specific);
 
+out:
+  strcpy_or_abort (data->output, sizeof data->output, cint->output);
   explicit_bzero (data->internal, sizeof data->internal);
   explicit_bzero (data->reserved, sizeof data->reserved);
   data->initialized = 0;
@@ -189,10 +197,10 @@ do_crypt (const char *phrase, const char *setting, struct crypt_data *data)
 char *
 crypt_rn (const char *phrase, const char *setting, void *data, int size)
 {
-  make_failure_token (setting, data, MIN (size, CRYPT_OUTPUT_SIZE));
-  if (size < 0 || (size_t)size < sizeof (struct crypt_data))
+  if (size < (int) sizeof (struct crypt_data))
     {
       errno = ERANGE;
+      make_failure_token (setting, data, size);
       return 0;
     }
 
@@ -207,28 +215,37 @@ SYMVER_crypt_rn;
 char *
 crypt_ra (const char *phrase, const char *setting, void **data, int *size)
 {
-  if (!*data || *size < 0 || (size_t) *size < sizeof (struct crypt_data))
+  struct crypt_data *p = NULL;
+
+  /* Short-circuit, if possible.  */
+  if (*data && *size >= (int) sizeof (struct crypt_data))
     {
-      /* realloc gives us no way to zeroize the previous data,
-         if it happens to relocate it to a new memory address.
-         So let's do it right away.  */
-      if (*data && *size > 0)
-        explicit_bzero (*data, (size_t) *size);
-
-      /* realloc called with *data == NULL is the same as a call
-         to malloc with the identical size parameter.  */
-      void *rdata = realloc (*data, sizeof (struct crypt_data));
-      if (!rdata)
-        return 0;
-
-      *data = rdata;
-      *size = sizeof (struct crypt_data);
-      memset (*data, 0, (size_t) *size);
+      p = *data;
+      do_crypt (phrase, setting, p);
+      return p->output[0] == '*' ? 0 : p->output;
     }
 
-  struct crypt_data *p = *data;
-  make_failure_token (setting, p->output, sizeof p->output);
+  /* Allocate new memory for struct crypt_data.  */
+  p = malloc (sizeof (struct crypt_data));
+  if (!p)
+    {
+      /* ERRNO is set by malloc.  */
+      if (*data)
+        make_failure_token (setting, *data, *size);
+      return 0;
+    }
+  memset (p, 0, sizeof (struct crypt_data));
+
   do_crypt (phrase, setting, p);
+
+  /* Zeroize memory, if needed, before assigning
+     the new memory location to the data pointer.  */
+  if (*data && *size > 0)
+    explicit_bzero (*data, (size_t) *size);
+  free (*data);
+  *data = p;
+  *size = sizeof (struct crypt_data);
+
   return p->output[0] == '*' ? 0 : p->output;
 }
 SYMVER_crypt_ra;
@@ -238,7 +255,6 @@ SYMVER_crypt_ra;
 char *
 crypt_r (const char *phrase, const char *setting, struct crypt_data *data)
 {
-  make_failure_token (setting, data->output, sizeof data->output);
   do_crypt (phrase, setting, data);
 #if ENABLE_FAILURE_TOKENS
   return data->output;
@@ -261,8 +277,6 @@ crypt_gensalt_rn (const char *prefix, unsigned long count,
                   const char *rbytes, int nrbytes, char *output,
                   int output_size)
 {
-  make_failure_token ("", output, output_size);
-
   /* Individual gensalt functions will check for adequate space for
      their own breed of setting, but the shortest possible one is
      three bytes (DES two-character salt + NUL terminator) and we
@@ -270,8 +284,14 @@ crypt_gensalt_rn (const char *prefix, unsigned long count,
   if (output_size < 3)
     {
       errno = ERANGE;
+      make_failure_token (prefix, output, output_size);
       return 0;
     }
+
+  char outbuf[CRYPT_GENSALT_OUTPUT_SIZE];
+  unsigned char internal_nrbytes = 0;
+  memset (outbuf, 0, sizeof outbuf);
+  make_failure_token (prefix, outbuf, sizeof outbuf);
 
   /* If the prefix is 0, that means to use the current best default.
      Note that this is different from the behavior when the prefix is
@@ -283,7 +303,7 @@ crypt_gensalt_rn (const char *prefix, unsigned long count,
       prefix = HASH_ALGORITHM_DEFAULT;
 #else
       errno = EINVAL;
-      return 0;
+      goto out;
 #endif
     }
 
@@ -291,27 +311,31 @@ crypt_gensalt_rn (const char *prefix, unsigned long count,
   if (!h)
     {
       errno = EINVAL;
-      return 0;
+      goto out;
     }
 
   char internal_rbytes[UCHAR_MAX] = "\0";
   /* typeof (internal_nrbytes) == typeof (h->nrbytes).  */
-  unsigned char internal_nrbytes = 0;
 
   /* If rbytes is 0, read random bytes from the operating system if
      possible.  */
   if (!rbytes)
     {
       if (!get_random_bytes (internal_rbytes, h->nrbytes))
-        return 0;
+        goto out;
 
       rbytes = internal_rbytes;
       nrbytes = internal_nrbytes = h->nrbytes;
     }
 
   h->gensalt (count,
-              (const unsigned char *)rbytes, (size_t)nrbytes,
-              (unsigned char *)output, (size_t)output_size);
+              (const unsigned char *) rbytes, (size_t) nrbytes,
+              (unsigned char *) outbuf,
+              MIN ((size_t) output_size, sizeof outbuf));
+
+out:
+  strcpy_or_abort (output, (size_t) output_size, outbuf);
+  explicit_bzero (outbuf, sizeof outbuf);
 
   if (internal_nrbytes)
     explicit_bzero (internal_rbytes, internal_nrbytes);

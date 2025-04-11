@@ -385,12 +385,14 @@ check_PROGRAMS = \
 	test/compile-strong-alias \
 	test/crypt-badargs \
 	test/crypt-gost-yescrypt \
+	test/crypt-nested-call \
 	test/crypt-sm3-yescrypt \
 	test/crypt-too-long-phrase \
 	test/explicit-bzero \
 	test/gensalt \
 	test/gensalt-bcrypt_x \
 	test/gensalt-extradata \
+	test/gensalt-nested-call \
 	test/gensalt-nthash \
 	test/getrandom-fallbacks \
 	test/getrandom-interface \
@@ -500,12 +502,14 @@ COMMON_TEST_OBJECTS = libcrypt.la
 test_badsalt_LDADD = $(COMMON_TEST_OBJECTS)
 test_badsetting_LDADD = $(COMMON_TEST_OBJECTS)
 test_gensalt_bcrypt_x_LDADD = $(COMMON_TEST_OBJECTS)
+test_gensalt_nested_call_LDADD = $(COMMON_TEST_OBJECTS)
 test_gensalt_nthash_LDADD = $(COMMON_TEST_OBJECTS)
 test_gensalt_extradata_LDADD = $(COMMON_TEST_OBJECTS)
 test_checksalt_LDADD = $(COMMON_TEST_OBJECTS)
 test_des_obsolete_LDADD = $(COMMON_TEST_OBJECTS)
 test_des_obsolete_r_LDADD = $(COMMON_TEST_OBJECTS)
 test_crypt_badargs_LDADD = $(COMMON_TEST_OBJECTS)
+test_crypt_nested_call_LDADD = $(COMMON_TEST_OBJECTS)
 test_crypt_too_long_phrase_LDADD = $(COMMON_TEST_OBJECTS)
 test_preferred_method_LDADD = $(COMMON_TEST_OBJECTS)
 test_short_outbuf_LDADD = $(COMMON_TEST_OBJECTS)
