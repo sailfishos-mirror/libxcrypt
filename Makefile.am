@@ -388,6 +388,7 @@ check_PROGRAMS = \
 	test/crypt-sm3-yescrypt \
 	test/explicit-bzero \
 	test/gensalt \
+	test/gensalt-bcrypt_x \
 	test/gensalt-extradata \
 	test/gensalt-nthash \
 	test/getrandom-fallbacks \
@@ -497,6 +498,7 @@ COMMON_TEST_OBJECTS = libcrypt.la
 
 test_badsalt_LDADD = $(COMMON_TEST_OBJECTS)
 test_badsetting_LDADD = $(COMMON_TEST_OBJECTS)
+test_gensalt_bcrypt_x_LDADD = $(COMMON_TEST_OBJECTS)
 test_gensalt_nthash_LDADD = $(COMMON_TEST_OBJECTS)
 test_gensalt_extradata_LDADD = $(COMMON_TEST_OBJECTS)
 test_checksalt_LDADD = $(COMMON_TEST_OBJECTS)
