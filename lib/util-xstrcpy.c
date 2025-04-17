@@ -20,6 +20,8 @@
 
 #include "crypt-port.h"
 
+#include <stdlib.h>
+
 /* Provide a safe way to copy strings with the guarantee src,
    including its terminating '\0', will fit d_size bytes.
    The trailing bytes of d_size will be filled with '\0'.
@@ -30,7 +32,9 @@ strcpy_or_abort (void *dst, size_t d_size, const void *src)
   assert (dst != NULL);
   assert (src != NULL);
   size_t s_size = strlen ((const char *)src);
-  assert (d_size >= s_size + 1);
+  assert (d_size > s_size);
+  if (!(d_size > s_size)) /* for NDEBUG builds */
+    abort();
 
   memcpy (dst, src, s_size);
   memset (((char *)dst) + s_size, 0, d_size - s_size);
