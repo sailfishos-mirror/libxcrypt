@@ -40,9 +40,9 @@ typedef struct
   yescrypt_local_t local;
   uint8_t outbuf[CRYPT_OUTPUT_SIZE],
           sm3setting[CRYPT_OUTPUT_SIZE],
-          hk[SM3_DIGEST_SIZE],
-          interm[SM3_DIGEST_SIZE],
-          y[SM3_DIGEST_SIZE],
+          hk[32],
+          interm[32],
+          y[32],
           *retval;
 } crypt_sm3_yescrypt_internal_t;
 

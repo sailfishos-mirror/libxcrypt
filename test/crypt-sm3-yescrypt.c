@@ -38,7 +38,7 @@ static void
 test_outer_hmac (const uint8_t *k, size_t n, const uint8_t *t, size_t len,
                  uint8_t *out, sm3_hmac_ctx_t *sm3buf)
 {
-  const uint8_t zero[SM3_DIGEST_SIZE] = {0};
+  const uint8_t zero[32] = {0};
 
   /* Zero one of arguments to outer hmac. */
   if (test_mode & 1)

@@ -74,7 +74,7 @@ static const struct testcase testcases[] =
     "\xb7\x64\xfa\xa9\x68\x0a\x29\x6a\x24\x05\xf2\x4b\xec\x39\xf8\x82"
   },
   {
-    "Custom test vector for HMAC-SM3 with key length > SM3_BLOCK_SIZE",
+    "Custom test vector for HMAC-SM3 with key length > 64",
     "What is the purpose of this test???",                                35,
     "\x49\x74\x27\x73\x20\x63\x6f\x6d\x70\x6c\x69\x63\x61\x74\x65\x64"
     "\x20\x74\x6f\x20\x65\x78\x70\x6c\x61\x69\x6e\x2c\x20\x62\x75\x74"
@@ -103,12 +103,12 @@ dumphex(const void *ptr, size_t size)
 static int
 test_sm3_hmac(const struct testcase *tc)
 {
-  uint8_t digest[SM3_HMAC_MAC_SIZE];
+  uint8_t digest[32];
 
   sm3_hmac_buf((const uint8_t *)tc->t, tc->tlen,
                (const uint8_t *)tc->k, tc->ksize, digest);
 
-  if (memcmp(digest, tc->match, SM3_HMAC_MAC_SIZE))
+  if (memcmp(digest, tc->match, 32))
     {
       fprintf(stderr, "ERROR: %s\n", tc->subject);
       printf("   key: ");
@@ -116,9 +116,9 @@ test_sm3_hmac(const struct testcase *tc)
       printf("   t:   ");
       dumphex(tc->t, tc->tlen);
       printf("   hmac=");
-      dumphex(digest, SM3_HMAC_MAC_SIZE);
+      dumphex(digest, 32);
       printf(" expect=");
-      dumphex(tc->match, SM3_HMAC_MAC_SIZE);
+      dumphex(tc->match, 32);
       return 1;
     }
   else
