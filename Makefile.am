@@ -386,6 +386,7 @@ check_PROGRAMS = \
 	test/crypt-badargs \
 	test/crypt-gost-yescrypt \
 	test/crypt-sm3-yescrypt \
+	test/crypt-too-long-phrase \
 	test/explicit-bzero \
 	test/gensalt \
 	test/gensalt-bcrypt_x \
@@ -505,8 +506,9 @@ test_checksalt_LDADD = $(COMMON_TEST_OBJECTS)
 test_des_obsolete_LDADD = $(COMMON_TEST_OBJECTS)
 test_des_obsolete_r_LDADD = $(COMMON_TEST_OBJECTS)
 test_crypt_badargs_LDADD = $(COMMON_TEST_OBJECTS)
-test_short_outbuf_LDADD = $(COMMON_TEST_OBJECTS)
+test_crypt_too_long_phrase_LDADD = $(COMMON_TEST_OBJECTS)
 test_preferred_method_LDADD = $(COMMON_TEST_OBJECTS)
+test_short_outbuf_LDADD = $(COMMON_TEST_OBJECTS)
 test_special_char_salt_LDADD = $(COMMON_TEST_OBJECTS)
 
 test_ka_bcrypt_LDADD = $(COMMON_TEST_OBJECTS)
