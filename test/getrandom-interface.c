@@ -183,6 +183,7 @@ main (void)
       perror ("mmap");
       return 1;
     }
+  // coverity[overflow_sink]
   memset (page, 'x', pagesize * 2);
   if (mprotect (page + pagesize, pagesize, PROT_NONE))
     {

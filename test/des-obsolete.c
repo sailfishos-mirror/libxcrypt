@@ -97,6 +97,7 @@ main (void)
       if (memcmp (cipher, answer, 64) != 0)
         {
           status = 1;
+          // coverity[sensitive_data_leak]
           report_failure (t, false, tc, cipher);
         }
 
