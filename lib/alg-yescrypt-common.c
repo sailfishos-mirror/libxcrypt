@@ -313,6 +313,7 @@ static void yescrypt_sha256_cipher(unsigned char *data, size_t datalen,
 		}
 		if (round == target)
 			break;
+		// coverity[overflow_const]
 		round += dir;
 	} while (1);
 

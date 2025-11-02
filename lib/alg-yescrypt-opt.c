@@ -1236,6 +1236,7 @@ static int yescrypt_kdf_body(const yescrypt_shared_t *shared,
 	VROM = NULL;
 	if (shared) {
 		uint64_t expected_size = (size_t)128 * r * NROM;
+		// coverity[overflow_const]
 		if ((NROM & (NROM - 1)) != 0 ||
 		    NROM <= 1 || NROM > UINT32_MAX ||
 		    shared->aligned_size < expected_size)
