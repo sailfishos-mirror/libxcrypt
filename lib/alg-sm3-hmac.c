@@ -50,8 +50,8 @@ sm3_hmac_init (sm3_hmac_ctx_t *ctx, const uint8_t *key, size_t key_len)
 
   if (key_len <= 64)
     {
+      explicit_bzero (ctx->key, 64);
       memcpy (ctx->key, key, key_len);
-      explicit_bzero (ctx->key + key_len, 64 - key_len);
     }
   else
     {
