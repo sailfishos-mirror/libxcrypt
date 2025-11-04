@@ -46,26 +46,24 @@
 void
 sm3_hmac_init (sm3_hmac_ctx_t *ctx, const uint8_t *key, size_t key_len)
 {
-  int i;
+  /* Initialize */
+  memset (ctx, 0, sizeof (sm3_hmac_ctx_t));
 
-  if (key_len <= 64)
-    {
-      explicit_bzero (ctx->key, 64);
-      memcpy (ctx->key, key, key_len);
-    }
-  else
+  if (key_len > 64)
     {
       sm3_init (&ctx->sm3_ctx);
       sm3_update (&ctx->sm3_ctx, key, key_len);
       sm3_final (ctx->key, &ctx->sm3_ctx);
-      explicit_bzero (ctx->key + 32,
-                      64 - 32);
+      goto end;
     }
-  for (i = 0; i < 64; i++)
+
+  memcpy (ctx->key, key, key_len);
+
+end:
+  for (int i = 0; i < 64; i++)
     {
       ctx->key[i] ^= IPAD;
     }
-
   sm3_init (&ctx->sm3_ctx);
   sm3_update (&ctx->sm3_ctx, ctx->key, 64);
 }
@@ -79,8 +77,7 @@ sm3_hmac_update (sm3_hmac_ctx_t *ctx, const uint8_t *data, size_t data_len)
 void
 sm3_hmac_final (sm3_hmac_ctx_t *ctx, uint8_t mac[32])
 {
-  int i;
-  for (i = 0; i < 64; i++)
+  for (int i = 0; i < 64; i++)
     {
       ctx->key[i] ^= (IPAD ^ OPAD);
     }
@@ -91,7 +88,7 @@ sm3_hmac_final (sm3_hmac_ctx_t *ctx, uint8_t mac[32])
   sm3_final (mac, &ctx->sm3_ctx);
 
   /* Zeroize sensitive information. */
-  explicit_bzero (&ctx, sizeof (ctx));
+  explicit_bzero (ctx, sizeof (sm3_hmac_ctx_t));
 }
 
 void
@@ -102,9 +99,6 @@ sm3_hmac (const unsigned char *data, size_t data_len,
   sm3_hmac_init (ctx, key, key_len);
   sm3_hmac_update (ctx, data, data_len);
   sm3_hmac_final (ctx, mac);
-
-  /* Zeroize sensitive information. */
-  explicit_bzero (ctx, sizeof (sm3_hmac_ctx_t));
 }
 
 void
