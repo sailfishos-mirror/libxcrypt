@@ -6,6 +6,11 @@ Please send bug reports, questions and suggestions to
 Version 4.5.0
 * Implement the sm3crypt ($sm3$) hashing algorithm (issue #188).
 * Implement the sm3-yescrypt ($sm3y$) hashing algorithm (issue #206).
+* Fix the implementation of the crypt(3) functions and the crypt_gensalt(3)
+  functions to not overwrite the output buffer too early. (issue #209).
+* Fix the strcpy_or_abort() function to call abort() in -DNDEBUG builds.
+* Add some more testcases.
+* Several fixes for issues found by Coverity.
 
 Version 4.4.38
 * Fix several "-Wunterminated-string-initialization", which are seen by
