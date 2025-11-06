@@ -31,7 +31,9 @@ jobs:
         compiler: [gcc, clang]
 
     env:
-      CC: ${{matrix.compiler}}
+      ac_cv_func_arc4random_buf: "no"
+      CC: ${{ matrix.compiler }}
+      LDFLAGS: "-Wl,--no-undefined-version"
       VERBOSE: 1
 
     steps:
@@ -98,8 +100,10 @@ jobs:
         compiler: [gcc, clang]
 
     env:
-      CC: ${{matrix.compiler}}
+      ac_cv_func_arc4random_buf: "no"
+      CC: ${{ matrix.compiler }}
       DEB_BUILD_MAINT_OPTIONS: hardening=+all sanitize=+address,+leak,+undefined
+      LDFLAGS: "-Wl,--no-undefined-version"
       VERBOSE: 1
 
     steps:

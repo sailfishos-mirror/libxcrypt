@@ -31,6 +31,7 @@ jobs:
       fail-fast: false
 
     env:
+      ac_cv_func_arc4random_buf: "no"
       VERBOSE: 1
 
     steps:

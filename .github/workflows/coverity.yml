@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
+      ac_cv_func_arc4random_buf: "no"
       CVT_PROJECT: besser82/libxcrypt
 
     # Coverity doesn't have official Github Actions integration yet.

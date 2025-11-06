@@ -71,8 +71,10 @@ jobs:
         - "--disable-obsolete-api --enable-hashes=yescrypt"
 
     env:
+      ac_cv_func_arc4random_buf: "no"
       CC: ${{ matrix.compiler }}
       CONFIG_OPTS: ${{ matrix.config_opts }}
+      LDFLAGS: "-Wl,--no-undefined-version"
 
     steps:
     - name: Checkout
