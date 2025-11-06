@@ -21,12 +21,13 @@ crypt_checksalt		XCRYPT_4.3
 crypt_preferred_method	XCRYPT_4.4
 
 # Interfaces for code compatibility with libxcrypt v3.1.1 and earlier.
-# No longer available to new binaries.
-crypt_gensalt_r		-		XCRYPT_2.0
-xcrypt			-		XCRYPT_2.0
-xcrypt_r		-		XCRYPT_2.0
-xcrypt_gensalt		-		XCRYPT_2.0
-xcrypt_gensalt_r	-		XCRYPT_2.0
+# No longer available to new binaries.  Include in version-script, only
+# if one of the compatibility interfaces is enabled.
+crypt_gensalt_r		-		XCRYPT_2.0:alt:glibc:owl:suse:yes
+xcrypt			-		XCRYPT_2.0:alt:glibc:owl:suse:yes
+xcrypt_r		-		XCRYPT_2.0:alt:glibc:owl:suse:yes
+xcrypt_gensalt		-		XCRYPT_2.0:alt:glibc:owl:suse:yes
+xcrypt_gensalt_r	-		XCRYPT_2.0:alt:glibc:owl:suse:yes
 
 # Deprecated interfaces, POSIX and otherwise; also present in GNU libc
 # since 2.0
