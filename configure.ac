@@ -232,7 +232,7 @@ AC_SUBST([BINDNOW_FLAG])
 
 # FIXME: This only checks whether the compiler accepts -fno-plt.
 # It doesn't check that the switch actually does what we want it to do.
-AX_APPEND_COMPILE_FLAGS([-fno-plt], [OPTI_FLAGS])
+AX_APPEND_COMPILE_FLAGS([-fno-plt], [OPTI_FLAGS], [$WARN_CFLAGS])
 
 # Export compiler flags for optimization.
 AC_SUBST([OPTI_FLAGS])
