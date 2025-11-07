@@ -4,6 +4,8 @@ Please send bug reports, questions and suggestions to
 <https://github.com/besser82/libxcrypt/issues>.
 
 Version 4.5.1
+* Do not include undefined symbols in version-script. (issue #181, #213).
+* Fix build with clang-20+ on macOS (issue #216).
 
 Version 4.5.0
 * Implement the sm3crypt ($sm3$) hashing algorithm (issue #188).
