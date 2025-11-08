@@ -34,30 +34,10 @@
    after the memset call, declared to read the memory that the memset
    writes.  */
 
-#if defined __GNUC__ && __GNUC__ >= 3
-/* This construct is known to work with GCC and *probably* also works
-   with clang.  It uses a VLA, which is normally forbidden in
-   libxcrypt, but not in a way that can cause arbitrarily large stack
-   allocations (which is *why* they are forbidden); disable the error
-   for this file only.  */
-
-# define OBSERVE_MEM(s, len) \
-  asm volatile ("" : : "m" (*(const char (*)[len]) s))
-
-#  if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)
-#   pragma GCC diagnostic ignored "-Wvla"
-#  elif defined __clang_major__ && __clang_major__ >= 4
-#   pragma clang diagnostic ignored "-Wvla"
-#  endif
-
-#else
-# error "Don't know how to observe memory access"
-#endif
-
 NO_INLINE void
 explicit_bzero (void *s, size_t len)
 {
-  memset (s, 0, len);
-  OBSERVE_MEM (s, len);
+  s = memset (s, 0, len);
+  asm volatile ("" : : "g" (s) : "memory");
 }
 #endif
