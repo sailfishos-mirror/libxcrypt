@@ -231,22 +231,27 @@ sha1_init_ctx (struct sha1_ctx* ctx)
 void
 sha1_process_bytes (const void *buffer, struct sha1_ctx *ctx, size_t size)
 {
-  size_t i, j;
+  const uint8_t *data = buffer;
+  size_t j = (ctx->count[0] >> 3) & 63;
 
-  j = (ctx->count[0] >> 3) & 63;
   if ((ctx->count[0] += (uint32_t)size << 3) < ((uint32_t)size << 3)) ctx->count[1]++;
   ctx->count[1] += (uint32_t)(size >> 29);
   if ((j + size) > 63)
     {
-      memcpy (&ctx->buffer[j], buffer, (i = 64-j));
+      const size_t i = 64 - j;
+      memcpy (&ctx->buffer[j], data, i);
       sha1_do_transform (ctx->state, ctx->buffer);
-      for ( ; i + 63 < size; i += 64)
-        sha1_do_transform (ctx->state, (const uint8_t*)buffer + i);
       j = 0;
+      size = size > i ? size - i : 0;
+      data += i;
+      while (size > 63)
+        {
+          sha1_do_transform (ctx->state, data);
+          size -= 64;
+          data += 64;
+        }
     }
-  else i = 0;
-  memcpy (&ctx->buffer[j], (const uint8_t *)buffer + i, size - i);
-
+  memcpy (&ctx->buffer[j], data, size);
 }
 
 
