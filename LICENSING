@@ -53,8 +53,10 @@ source tree.  For specific licensing terms consult the files themselves.
    crypt-scrypt.c
 
  * Copyright Björn Esser; 0-clause BSD:
-   alg-sm3-hmac.h, alg-sm3-hmac.c, crypt-sm3-yescrypt.c, crypt-common.c,
-   test-checksalt.c, test-compile-strong-alias.c, test-gensalt-nthash.c,
+   alg-sm3.c, alg-sm3.h, alg-sm3-hmac.h, alg-sm3-hmac.c,
+   crypt-sm3-yescrypt.c, crypt-common.c, test-checksalt.c,
+   test-compile-strong-alias.c, test/crypt-nested-call.c,
+   test/gensalt-nested-call.c, test-gensalt-nthash.c,
    test-short-outbuf.c, test-special-char-salt.c
 
  * Copyright Michael Bretterklieber, Björn Esser et al.; 2-clause BSD:
@@ -68,9 +70,6 @@ source tree.  For specific licensing terms consult the files themselves.
 
  * Copyright Juniper Networks, Inc.; 3-clause BSD:
    crypt-pbkdf1-sha1.c, crypt-pbkdf1-sha1.c
-
- * Copyright Tianjia Zhang; 3-clause BSD:
-   alg-sm3.c, alg-sm3.h
 
  * Copyright Björn Esser; 2-clause BSD:
    alg-hmac-sha1.c, alg-hmac-sha1.h, test-alg-hmac-sha1.c
