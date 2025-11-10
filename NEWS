@@ -4,9 +4,14 @@ Please send bug reports, questions and suggestions to
 <https://github.com/besser82/libxcrypt/issues>.
 
 Version 4.5.2
+* Use a more portable implementation for our fallback implementation
+  of explicit_bzero(); also get rid of the need for VLA in the new
+  implementation (issue #212).
+* Fix compilation of alg-sha1 with optimization level 3 for GCC v11
+  and newer (issue #179).
 
 Version 4.5.1
-* Do not include undefined symbols in version-script. (issue #181, #213).
+* Do not include undefined symbols in version-script (issue #181, #213).
 * Fix build with clang-20+ on macOS (issue #216).
 
 Version 4.5.0
