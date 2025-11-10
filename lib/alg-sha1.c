@@ -67,6 +67,12 @@ Modified 10/2017
 By Björn Esser <besser82@fedoraproject.org>
 Still 100% public domain
 modified for use with libxcrypt
+
+-----------------
+Modified 11/2025
+By Björn Esser <besser82@fedoraproject.org>
+Still 100% public domain
+modified sha1_process_bytes() to fix compilation with -O3 and GCC >= 11
 */
 
 #include "crypt-port.h"
