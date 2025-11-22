@@ -151,13 +151,38 @@ __wrap_syscall(long number, ...)
    there's no way to _clear_ that flag again.  This test chooses to
    exercise the read-failure path, not the open-failure path.  */
 #if defined HAVE_SYS_STAT_H && defined HAVE_FCNTL_H && defined HAVE_UNISTD_H
+
+static bool open_needs_mode(int flags)
+{
+  if (flags & O_CREAT)
+  {
+    return true;
+  }
+#if defined(O_TMPFILE)
+  if ((flags & O_TMPFILE) == O_TMPFILE)
+  {
+    return true;
+  }
+#endif
+  return false;
+}
+
 static bool urandom_should_fail = false;
 static int urandom_fd = -1;
-extern int __wrap_open (const char *, int, mode_t);
-extern int __real_open (const char *, int, mode_t);
+extern int __wrap_open (const char *, int, ...);
+extern int __real_open (const char *, int, ...);
 int
-__wrap_open (const char *path, int flags, mode_t mode)
+__wrap_open (const char *path, int flags, ...)
 {
+  int mode = 0;
+  if (open_needs_mode(flags))
+  {
+    va_list args;
+    va_start(args, flags);
+    mode = va_arg(args, int);
+    va_end(args);
+  }
+
   int ret = __real_open (path, flags, mode);
   if (ret == -1)
     return ret;
@@ -167,11 +192,20 @@ __wrap_open (const char *path, int flags, mode_t mode)
 }
 
 #ifdef HAVE_OPEN64
-extern int __wrap_open64 (const char *, int, mode_t);
-extern int __real_open64 (const char *, int, mode_t);
+extern int __wrap_open64 (const char *, int, ...);
+extern int __real_open64 (const char *, int, ...);
 int
-__wrap_open64 (const char *path, int flags, mode_t mode)
+__wrap_open64 (const char *path, int flags, ...)
 {
+  int mode = 0;
+  if (open_needs_mode(flags))
+  {
+    va_list args;
+    va_start(args, flags);
+    mode = va_arg(args, int);
+    va_end(args);
+  }
+
   int ret = __real_open64 (path, flags, mode);
   if (ret == -1)
     return ret;
