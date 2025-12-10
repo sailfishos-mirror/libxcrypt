@@ -136,7 +136,7 @@ crypt_sm3_yescrypt_rn (const char *phrase, size_t phr_size,
   intbuf->outbuf[3] = '3';
 
   /* extract yescrypt output from "$y$param$salt$output" */
-  char *hptr = strchr ((const char *) intbuf->retval + 3, '$');
+  char *hptr = strchr ((char *) intbuf->retval + 3, '$');
   if (!hptr)
     {
       errno = EINVAL;
